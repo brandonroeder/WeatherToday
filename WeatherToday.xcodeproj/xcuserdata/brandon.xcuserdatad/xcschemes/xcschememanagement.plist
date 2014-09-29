@@ -9,6 +9,11 @@
 			<key>orderHint</key>
 			<integer>0</integer>
 		</dict>
+		<key>WeatherWidget.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>1</integer>
+		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
@@ -18,6 +23,11 @@
 			<true/>
 		</dict>
 		<key>CA5DC1F719D3DC96003F0AEB</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>CA5DC20B19D3DCB1003F0AEB</key>
 		<dict>
 			<key>primary</key>
 			<true/>

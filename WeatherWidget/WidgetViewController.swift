@@ -35,14 +35,24 @@ class WidgetViewController: UIViewController, NCWidgetProviding, CLLocationManag
         var humidity: String? = NSUserDefaults.standardUserDefaults().stringForKey("Humidity")
         var windSpeed: String? = NSUserDefaults.standardUserDefaults().stringForKey("WindSpeed")
         var weatherDescription: String? = NSUserDefaults.standardUserDefaults().stringForKey("Description")
+        var updateTime: Double? = NSUserDefaults.standardUserDefaults().doubleForKey("UpdatedTime")
+        
+        println((NSDate().timeIntervalSince1970 - updateTime!)/60)
+        
 
-        if (location != nil && temp != nil && humidity != nil && windSpeed != nil && weatherDescription != nil)
+        if (location != nil && temp != nil && humidity != nil && windSpeed != nil)
         {
-            self.locationLabel.text = location;
-            self.tempLabel.text = temp;
-            self.humidityLabel.text = humidity;
-            self.windLabel.text = windSpeed;
-            self.descriptionLabel.text = weatherDescription;
+            if ((NSDate().timeIntervalSince1970 - updateTime!)/60 >= 15)
+            {
+                updateWeatherInfo(32.985678, longitude: -96.755612)
+            }
+            else
+            {
+                self.locationLabel.text = location;
+                self.tempLabel.text = temp;
+                self.humidityLabel.text = humidity;
+                self.windLabel.text = windSpeed;
+            }
         }
         else
         {
@@ -54,10 +64,14 @@ class WidgetViewController: UIViewController, NCWidgetProviding, CLLocationManag
     
     func widgetPerformUpdateWithCompletionHandler(completionHandler: ((NCUpdateResult) -> Void)!)
     {
-        completionHandler(.NewData)
+        completionHandler(.NewData)        
     }
 
-
+    @IBAction func refresh(sender: AnyObject)
+    {
+        updateWeatherInfo(32.985678, longitude: -96.755612)
+    }
+    
     func updateWeatherInfo(latitude: CLLocationDegrees, longitude: CLLocationDegrees)
     {
         Alamofire.request(.GET, "http://api.openweathermap.org/data/2.5/weather", parameters: ["lat":latitude, "lon":longitude, "cnt":0])
@@ -85,18 +99,23 @@ class WidgetViewController: UIViewController, NCWidgetProviding, CLLocationManag
                         // Convert temperature to Fahrenheit if user is within the US
                         temperature = round(((tempResult - 273.15) * 1.8) + 32)
                         
-                        NSUserDefaults.standardUserDefaults().setObject(formatter.stringFromNumber(temperature) + "°", forKey:"Temp")
+                        NSUserDefaults.standardUserDefaults().setObject(formatter.stringFromNumber(temperature)! + "°", forKey:"Temp")
                         NSUserDefaults.standardUserDefaults().synchronize()
                         
-                        self.tempLabel.text = formatter.stringFromNumber(temperature) + "°"
+                        self.tempLabel.text = formatter.stringFromNumber(temperature)! + "°"
                     }
                     else
                     {
                         // Otherwise, convert temperature to Celsius
                         temperature = round(tempResult - 273.15)
-                        self.tempLabel.text = formatter.stringFromNumber(temperature) + "°"
+                        self.tempLabel.text = formatter.stringFromNumber(temperature)! + "°"
                     }
-                    
+                }
+                
+                if let updateTime = jsonResult["dt"] as? Double
+                {
+                    NSUserDefaults.standardUserDefaults().setObject(updateTime, forKey:"UpdatedTime")
+                    NSUserDefaults.standardUserDefaults().synchronize()
                 }
                 
                 if let name = jsonResult["name"] as? String
@@ -112,20 +131,19 @@ class WidgetViewController: UIViewController, NCWidgetProviding, CLLocationManag
                     var humidity = main["humidity"] as Double
                     var pressure = main["pressure"] as Double
                     
-                    self.humidityLabel.text = "Humidity: " + formatter.stringFromNumber(humidity) + "%"
+                    self.humidityLabel.text = "Humidity: " + formatter.stringFromNumber(humidity)! + "%"
                     
-                    NSUserDefaults.standardUserDefaults().setObject("Humidity: " + formatter.stringFromNumber(humidity) + "%", forKey:"Humidity")
+                    NSUserDefaults.standardUserDefaults().setObject("Humidity: " + formatter.stringFromNumber(humidity)! + "%", forKey:"Humidity")
                     NSUserDefaults.standardUserDefaults().synchronize()
                 }
                 
                 if let wind = jsonResult["wind"]? as? NSDictionary
                 {
                     var windSpeed = wind["speed"] as Double
-                    self.windLabel.text = "Wind: " + formatter.stringFromNumber(windSpeed) + " MPH"
+                    self.windLabel.text = "Wind: " + formatter.stringFromNumber(windSpeed)! + " MPH"
                     
-                    NSUserDefaults.standardUserDefaults().setObject("Wind: " + formatter.stringFromNumber(windSpeed) + " MPH", forKey:"WindSpeed")
+                    NSUserDefaults.standardUserDefaults().setObject("Wind: " + formatter.stringFromNumber(windSpeed)! + " MPH", forKey:"WindSpeed")
                     NSUserDefaults.standardUserDefaults().synchronize()
-
                 }
 
                 if let weather = jsonResult["weather"]? as? NSArray
@@ -135,10 +153,9 @@ class WidgetViewController: UIViewController, NCWidgetProviding, CLLocationManag
                     var sunrise = sys["sunrise"] as Double
                     var sunset = sys["sunset"] as Double
                 
-                    self.descriptionLabel.text = weatherDescription;
-                    
-                    NSUserDefaults.standardUserDefaults().setObject(weatherDescription, forKey:"Description")
-                    NSUserDefaults.standardUserDefaults().synchronize()
+//                    self.descriptionLabel.text = weatherDescription;
+//                    NSUserDefaults.standardUserDefaults().setObject(weatherDescription, forKey:"Description")
+//                    NSUserDefaults.standardUserDefaults().synchronize()
                 }
             }
         }
@@ -148,6 +165,4 @@ class WidgetViewController: UIViewController, NCWidgetProviding, CLLocationManag
     {
         return UIEdgeInsetsZero
     }
-
-
 }

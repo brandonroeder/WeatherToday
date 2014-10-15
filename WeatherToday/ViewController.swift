@@ -7,3 +7,14 @@
 //
 
 import Foundation
+import UIKit
+
+class WidgetViewController: UIViewController
+{
+    override func viewDidLoad()
+    {
+        super.viewDidLoad()
+        
+        self.view.backgroundColor = UIColor(patternImage: UIImage(named:"weather.jpg")!)
+    }
+}

@@ -8,7 +8,7 @@
         <!--View Controller-->
         <scene sceneID="ufC-wZ-h7g">
             <objects>
-                <viewController id="vXZ-lx-hvc" sceneMemberID="viewController">
+                <viewController id="vXZ-lx-hvc" customClass="ViewController" customModule="WeatherToday" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="jyV-Pf-zRb"/>
                         <viewControllerLayoutGuide type="bottom" id="2fi-mo-0CV"/>
@@ -18,32 +18,38 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Enter your zipcode:" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3sM-SU-wew">
-                                <rect key="frame" x="154" y="50" width="293" height="40"/>
+                                <rect key="frame" x="154" y="50" width="292.5" height="40"/>
                                 <constraints>
                                     <constraint firstAttribute="width" relation="lessThanOrEqual" constant="400" id="kYZ-pi-7l6"/>
                                     <constraint firstAttribute="height" constant="40" id="wm0-za-Pdz"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" name="HelveticaNeue-Light" family="Helvetica Neue" pointSize="35"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="xDC-4c-Yfy">
-                                <rect key="frame" x="150" y="334" width="300" height="30"/>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="line" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="xDC-4c-Yfy">
+                                <rect key="frame" x="100" y="284" width="400" height="70"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="300" id="u6u-eG-tMh"/>
+                                    <constraint firstAttribute="height" constant="70" id="eGM-P8-Nq3"/>
+                                    <constraint firstAttribute="width" constant="400" id="u6u-eG-tMh"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                <textInputTraits key="textInputTraits"/>
+                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <fontDescription key="fontDescription" name="HelveticaNeue-Thin" family="Helvetica Neue" pointSize="60"/>
+                                <textInputTraits key="textInputTraits" keyboardType="numbersAndPunctuation" returnKeyType="done" enablesReturnKeyAutomatically="YES"/>
                             </textField>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" red="0.1803921568627451" green="0.80000000000000004" blue="0.44313725490196076" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="tintColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstAttribute="centerX" secondItem="xDC-4c-Yfy" secondAttribute="centerX" id="6Js-l3-1aM"/>
                             <constraint firstItem="3sM-SU-wew" firstAttribute="top" secondItem="kh9-bI-dsS" secondAttribute="topMargin" constant="50" id="F0l-IH-um9"/>
-                            <constraint firstItem="xDC-4c-Yfy" firstAttribute="top" secondItem="3sM-SU-wew" secondAttribute="bottom" constant="244" id="PRp-w4-5jB"/>
+                            <constraint firstItem="xDC-4c-Yfy" firstAttribute="top" secondItem="3sM-SU-wew" secondAttribute="bottom" constant="194" id="PRp-w4-5jB"/>
                             <constraint firstAttribute="centerX" secondItem="3sM-SU-wew" secondAttribute="centerX" id="egp-Ph-7kt"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="zipcodeField" destination="xDC-4c-Yfy" id="fRM-bi-bWU"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
             </objects>

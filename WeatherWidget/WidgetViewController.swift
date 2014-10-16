@@ -23,12 +23,19 @@ class WidgetViewController: UIViewController, NCWidgetProviding, CLLocationManag
     @IBOutlet weak var windLabel: UILabel!
     @IBOutlet weak var humidityLabel: UILabel!
     @IBOutlet weak var descriptionLabel: UILabel!
+    var latitude: AnyObject?
+    var longitude: AnyObject?
     
-    let defaults:NSUserDefaults = NSUserDefaults.standardUserDefaults()
-    
+    required init(coder aDecoder: (NSCoder!))
+    {
+        super.init(coder: aDecoder)
+    }
+
     override func viewDidLoad()
     {
         super.viewDidLoad()
+        
+        let defaults = NSUserDefaults(suiteName: "group.brandonroeder.WeatherToday")
 
         var location: String? = NSUserDefaults.standardUserDefaults().stringForKey("Location")
         var temp: String? = NSUserDefaults.standardUserDefaults().stringForKey("Temp")
@@ -37,14 +44,14 @@ class WidgetViewController: UIViewController, NCWidgetProviding, CLLocationManag
         var weatherDescription: String? = NSUserDefaults.standardUserDefaults().stringForKey("Description")
         var updateTime: Double? = NSUserDefaults.standardUserDefaults().doubleForKey("UpdatedTime")
         
-        println((NSDate().timeIntervalSince1970 - updateTime!)/60)
+        self.latitude = defaults?.objectForKey("latitude")
+        self.longitude = defaults?.objectForKey("longitude")
         
-
-        if (location != nil && temp != nil && humidity != nil && windSpeed != nil)
+        if (updateTime != nil)
         {
             if ((NSDate().timeIntervalSince1970 - updateTime!)/60 >= 15)
             {
-                updateWeatherInfo(32.985678, longitude: -96.755612)
+                updateWeatherInfo(self.latitude as CLLocationDegrees, longitude: self.longitude as CLLocationDegrees)
             }
             else
             {
@@ -56,7 +63,7 @@ class WidgetViewController: UIViewController, NCWidgetProviding, CLLocationManag
         }
         else
         {
-            updateWeatherInfo(32.985678, longitude: -96.755612)
+            updateWeatherInfo(self.latitude as CLLocationDegrees, longitude: self.longitude as CLLocationDegrees)
         }
         
         self.preferredContentSize = CGSizeMake(self.view.frame.size.width, 110)
@@ -69,7 +76,7 @@ class WidgetViewController: UIViewController, NCWidgetProviding, CLLocationManag
 
     @IBAction func refresh(sender: AnyObject)
     {
-        updateWeatherInfo(32.985678, longitude: -96.755612)
+        updateWeatherInfo(self.latitude as CLLocationDegrees, longitude: self.longitude as CLLocationDegrees)
     }
     
     func updateWeatherInfo(latitude: CLLocationDegrees, longitude: CLLocationDegrees)
@@ -152,10 +159,6 @@ class WidgetViewController: UIViewController, NCWidgetProviding, CLLocationManag
                     var weatherDescription = (weather[0] as NSDictionary)["description"] as String
                     var sunrise = sys["sunrise"] as Double
                     var sunset = sys["sunset"] as Double
-                
-//                    self.descriptionLabel.text = weatherDescription;
-//                    NSUserDefaults.standardUserDefaults().setObject(weatherDescription, forKey:"Description")
-//                    NSUserDefaults.standardUserDefaults().synchronize()
                 }
             }
         }

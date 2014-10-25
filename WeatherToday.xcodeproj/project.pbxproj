@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		CA1914C719D6729B0085E18E /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CA5DC1EF19D3DC96003F0AEB /* Images.xcassets */; };
-		CA1914C919D677F60085E18E /* weather.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CA1914C819D677F60085E18E /* weather.jpg */; };
 		CA1914CB19D67C760085E18E /* WidgetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA1914CA19D67C760085E18E /* WidgetViewController.swift */; };
 		CA39511A19D9EEDB00F5588C /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA39511919D9EEDB00F5588C /* ViewController.swift */; };
 		CA4285BC19DB575C003D9DC4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA4285BB19DB575C003D9DC4 /* AppDelegate.swift */; };
@@ -21,6 +20,8 @@
 		CA5DC20F19D3DCB1003F0AEB /* NotificationCenter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CA5DC20E19D3DCB1003F0AEB /* NotificationCenter.framework */; };
 		CA5DC21719D3DCB1003F0AEB /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CA5DC21619D3DCB1003F0AEB /* MainInterface.storyboard */; };
 		CA5DC21A19D3DCB1003F0AEB /* WeatherWidget.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = CA5DC20C19D3DCB1003F0AEB /* WeatherWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		CA77C77A19F86DF200FAAB26 /* background.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CA77C77919F86DF200FAAB26 /* background.jpg */; };
+		CA77C77D19F86E8E00FAAB26 /* background_alt.png in Resources */ = {isa = PBXBuildFile; fileRef = CA77C77C19F86E8E00FAAB26 /* background_alt.png */; };
 		CAD9EB1F19D3DF8C0070F64D /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CAD9EB1E19D3DF8C0070F64D /* CoreLocation.framework */; };
 		CAD9EB2319D3E9590070F64D /* WeatherIcons-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = CAD9EB2019D3E9590070F64D /* WeatherIcons-Regular.otf */; };
 		CAD9EB2419D3EA3C0070F64D /* WeatherIcons-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = CAD9EB2019D3E9590070F64D /* WeatherIcons-Regular.otf */; };
@@ -109,7 +110,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		CA1914C819D677F60085E18E /* weather.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = weather.jpg; sourceTree = "<group>"; };
 		CA1914CA19D67C760085E18E /* WidgetViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WidgetViewController.swift; sourceTree = "<group>"; };
 		CA39511919D9EEDB00F5588C /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		CA4285BB19DB575C003D9DC4 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -127,6 +127,8 @@
 		CA5DC20E19D3DCB1003F0AEB /* NotificationCenter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NotificationCenter.framework; path = System/Library/Frameworks/NotificationCenter.framework; sourceTree = SDKROOT; };
 		CA5DC21219D3DCB1003F0AEB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CA5DC21619D3DCB1003F0AEB /* MainInterface.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = MainInterface.storyboard; sourceTree = "<group>"; };
+		CA77C77919F86DF200FAAB26 /* background.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = background.jpg; sourceTree = "<group>"; };
+		CA77C77C19F86E8E00FAAB26 /* background_alt.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = background_alt.png; sourceTree = "<group>"; };
 		CAD9EB1E19D3DF8C0070F64D /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		CAD9EB2019D3E9590070F64D /* WeatherIcons-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "WeatherIcons-Regular.otf"; sourceTree = "<group>"; };
 		CAFC039219D71FB50020C4C5 /* Alamofire.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Alamofire.xcodeproj; path = Alamofire/Alamofire.xcodeproj; sourceTree = "<group>"; };
@@ -200,7 +202,8 @@
 		CA5DC1E219D3DC96003F0AEB /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				CA1914C819D677F60085E18E /* weather.jpg */,
+				CA77C77919F86DF200FAAB26 /* background.jpg */,
+				CA77C77C19F86E8E00FAAB26 /* background_alt.png */,
 				CA5DC1E319D3DC96003F0AEB /* Info.plist */,
 			);
 			name = "Supporting Files";
@@ -404,7 +407,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				CA5DC1EE19D3DC96003F0AEB /* Main.storyboard in Resources */,
-				CA1914C919D677F60085E18E /* weather.jpg in Resources */,
+				CA77C77D19F86E8E00FAAB26 /* background_alt.png in Resources */,
+				CA77C77A19F86DF200FAAB26 /* background.jpg in Resources */,
 				CA5DC1F319D3DC96003F0AEB /* LaunchScreen.xib in Resources */,
 				CAD9EB2419D3EA3C0070F64D /* WeatherIcons-Regular.otf in Resources */,
 				CA5DC1F019D3DC96003F0AEB /* Images.xcassets in Resources */,
@@ -647,6 +651,8 @@
 		CA5DC21E19D3DCB1003F0AEB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = WeatherWidget/WeatherWidget.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -668,6 +674,8 @@
 		CA5DC21F19D3DCB1003F0AEB /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = WeatherWidget/WeatherWidget.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";

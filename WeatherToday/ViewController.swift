@@ -13,20 +13,37 @@ import Alamofire
 
 class ViewController: UIViewController, UITextFieldDelegate
 {
+    let defaults =  NSUserDefaults(suiteName: "group.brandonroeder.WeatherToday")
     @IBOutlet weak var zipcodeField: UITextField!
 
     override func viewDidLoad()
     {
         super.viewDidLoad()
         
-        self.zipcodeField.delegate = self;
+        self.zipcodeField.delegate = self
         self.zipcodeField.borderStyle = UITextBorderStyle.None
-        self.zipcodeField.setNeedsDisplay()
-        self.zipcodeField.becomeFirstResponder()
+        self.zipcodeField.clearsOnBeginEditing = true
+
+        self.view.backgroundColor = UIColor(patternImage: UIImage(named: "background_alt.png")!)
+
+        var location: String? = self.defaults?.stringForKey("Location")
+
+        if (location != nil)
+        {
+            self.zipcodeField.text = location
+        }
+        else
+        {
+            self.zipcodeField.setNeedsDisplay()
+            self.zipcodeField.becomeFirstResponder()
+        }
     }
     
     @IBAction func fetch(sender: AnyObject)
     {
+        let appDomain = NSBundle .mainBundle().bundleIdentifier
+        self.defaults?.removePersistentDomainForName(appDomain!)
+
         self.zipcodeField.resignFirstResponder()
         self.getLocation(self.zipcodeField.text)
 
@@ -45,8 +62,6 @@ class ViewController: UIViewController, UITextFieldDelegate
     
     func updateUISuccess(jsonResult: NSDictionary!)
     {
-        let defaults = NSUserDefaults(suiteName: "group.brandonroeder.WeatherToday")
-
         var results: NSArray = jsonResult["results"] as NSArray
         var components = results[0] as NSDictionary
         let formattedAddress = components["formatted_address"]? as String?
@@ -58,9 +73,9 @@ class ViewController: UIViewController, UITextFieldDelegate
                 let latitude: AnyObject? = location["lat"]? as AnyObject?
                 let longitude: AnyObject? = location["lng"]? as AnyObject?
                 
-                defaults?.setValue(latitude, forKey: "latitude")
-                defaults?.setValue(longitude, forKey: "longitude")
-                defaults?.synchronize()
+                self.defaults?.setValue(latitude, forKey: "latitude")
+                self.defaults?.setValue(longitude, forKey: "longitude")
+                self.defaults?.synchronize()
             }
         }
     }
@@ -80,6 +95,21 @@ class ViewController: UIViewController, UITextFieldDelegate
             return false;
         }
         return true
+    }
+    
+    func textFieldShouldClear(textField: UITextField!) -> Bool
+    {
+        var location: String? = self.defaults?.stringForKey("Location")
+        
+        if (textField == self.zipcodeField)
+        {
+            if (location != nil)
+            {
+                return true
+            }
+        }
+        
+        return false
     }
 
 

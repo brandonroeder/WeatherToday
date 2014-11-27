@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6249" systemVersion="14A389" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="vXZ-lx-hvc">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6250" systemVersion="14A389" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="vXZ-lx-hvc">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6243"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6244"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
@@ -17,8 +17,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Enter your zipcode:" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3sM-SU-wew">
-                                <rect key="frame" x="154" y="50" width="292.5" height="40"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Weather Today" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3sM-SU-wew">
+                                <rect key="frame" x="188" y="50" width="225.5" height="40"/>
                                 <constraints>
                                     <constraint firstAttribute="width" relation="lessThanOrEqual" constant="400" id="kYZ-pi-7l6"/>
                                     <constraint firstAttribute="height" constant="40" id="wm0-za-Pdz"/>
@@ -27,27 +27,34 @@
                                 <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="line" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="xDC-4c-Yfy">
-                                <rect key="frame" x="100" y="284" width="400" height="70"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FXg-Wt-Nct" userLabel="Label">
+                                <rect key="frame" x="153" y="280" width="293" height="40"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="70" id="eGM-P8-Nq3"/>
-                                    <constraint firstAttribute="width" constant="400" id="u6u-eG-tMh"/>
+                                    <constraint firstAttribute="width" relation="lessThanOrEqual" constant="400" id="4yy-ow-csa"/>
+                                    <constraint firstAttribute="width" constant="293" id="QaF-Zc-opV"/>
+                                    <constraint firstAttribute="height" constant="40" id="wYl-yb-qol"/>
                                 </constraints>
+                                <fontDescription key="fontDescription" name="HelveticaNeue-Light" family="Helvetica Neue" pointSize="35"/>
                                 <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
-                                <fontDescription key="fontDescription" name="HelveticaNeue-Thin" family="Helvetica Neue" pointSize="60"/>
-                                <textInputTraits key="textInputTraits" keyboardType="numbersAndPunctuation" returnKeyType="done" enablesReturnKeyAutomatically="YES"/>
-                            </textField>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="tintColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
-                            <constraint firstAttribute="centerX" secondItem="xDC-4c-Yfy" secondAttribute="centerX" id="6Js-l3-1aM"/>
                             <constraint firstItem="3sM-SU-wew" firstAttribute="top" secondItem="kh9-bI-dsS" secondAttribute="topMargin" constant="50" id="F0l-IH-um9"/>
-                            <constraint firstItem="xDC-4c-Yfy" firstAttribute="top" secondItem="3sM-SU-wew" secondAttribute="bottom" constant="194" id="PRp-w4-5jB"/>
+                            <constraint firstItem="FXg-Wt-Nct" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" constant="153" id="KWr-rb-5Hy"/>
+                            <constraint firstItem="FXg-Wt-Nct" firstAttribute="centerY" secondItem="kh9-bI-dsS" secondAttribute="centerY" id="WKU-tR-7oq"/>
+                            <constraint firstAttribute="centerX" secondItem="FXg-Wt-Nct" secondAttribute="centerX" constant="0.5" id="Xcx-ke-Obt"/>
                             <constraint firstAttribute="centerX" secondItem="3sM-SU-wew" secondAttribute="centerX" id="egp-Ph-7kt"/>
                         </constraints>
+                        <variation key="default">
+                            <mask key="constraints">
+                                <exclude reference="KWr-rb-5Hy"/>
+                            </mask>
+                        </variation>
                     </view>
                     <connections>
-                        <outlet property="zipcodeField" destination="xDC-4c-Yfy" id="fRM-bi-bWU"/>
+                        <outlet property="locationLabel" destination="FXg-Wt-Nct" id="YYI-Yo-rhU"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>

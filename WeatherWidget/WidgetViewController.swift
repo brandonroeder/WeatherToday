@@ -11,13 +11,17 @@ import UIKit
 import NotificationCenter
 import Alamofire
 import CoreLocation
+import QuartzCore
+import CoreText
 
-var kWeatherAPIKey = "06f45665690ce19df795bd0ee5a164ac"
+var kWundergroundAPIKey = "da8c1b0d02f335f8"
 
 class WidgetViewController: UIViewController, NCWidgetProviding, CLLocationManagerDelegate
 {
-    let locationManager:CLLocationManager = CLLocationManager()
     let defaults =  NSUserDefaults(suiteName: "group.brandonroeder.WeatherToday")
+    let locationManager = CLLocationManager()
+    var flag = Bool()
+    var result = false
 
     @IBOutlet weak var locationLabel: UILabel!
     @IBOutlet weak var tempLabel: UILabel!
@@ -41,155 +45,231 @@ class WidgetViewController: UIViewController, NCWidgetProviding, CLLocationManag
     {
         super.viewDidLoad()
         
-        self.preferredContentSize = CGSizeMake(self.view.frame.size.width, 110)
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyKilometer
+        preferredContentSize = CGSizeMake(view.frame.size.width, 150)
     }
     
     override func viewWillAppear(animated: Bool)
     {
         super.viewWillAppear(animated)
         
-        self.latitude = self.defaults?.objectForKey("latitude")
-        self.longitude = self.defaults?.objectForKey("longitude")
 
-        var location: String? = self.defaults?.stringForKey("Location")
-        var temp: String? = self.defaults?.stringForKey("Temp")
-        var humidity: String? = self.defaults?.stringForKey("Humidity")
-        var windSpeed: String? = self.defaults?.stringForKey("WindSpeed")
-        var weatherDescription: String? = self.defaults?.stringForKey("Description")
-        var updateTime: Double? = self.defaults?.doubleForKey("UpdatedTime")
+//        if (self.latitude != nil && self.longitude != nil)
+//        {
+//            if (isFirstLaunch())
+//            {
+//                updateWeatherInfo(self.latitude as CLLocationDegrees, longitude: self.longitude as CLLocationDegrees, completion: nil)
+//            }
+//            else
+//            {
+//                if (secondsSinceUpdate > 3600) //if last update was more than 1 hour ago, update weather
+//                {
+//                    updateWeatherInfo(self.latitude as CLLocationDegrees, longitude: self.longitude as CLLocationDegrees, completion: nil)
+//                }
+//            }
+//        }
         
-        let dateFormatter = NSDateFormatter()
-        let formattedTime = NSDate(timeIntervalSince1970: updateTime!)
-        dateFormatter.dateFormat = "MMM d — h:m a"
+    }
+    
+    func widgetPerformUpdateWithCompletionHandler(completionHandler: ((NCUpdateResult) -> Void)!)
+    {
+        locationManager.requestAlwaysAuthorization() // Ask for authorization from the User.
+        locationManager.startUpdatingLocation()
         
-        self.updatedLabel.text = dateFormatter.stringFromDate(formattedTime)
-        self.locationLabel.text = location;
-        self.tempLabel.text = temp;
-        self.humidityLabel.text = humidity;
-        self.windLabel.text = windSpeed;
+        self.latitude = defaults?.objectForKey("latitude")
+        self.longitude = defaults?.objectForKey("longitude")
+
+        var location: String? = defaults?.stringForKey("Location")
+        var temp: String? = defaults?.stringForKey("Temp")
+        var humidity: String? = defaults?.stringForKey("Humidity")
+        var windSpeed: String? = defaults?.stringForKey("WindSpeed")
+        var weatherDescription: String? = defaults?.stringForKey("Description")
+        var updateTime: Double? = defaults?.doubleForKey("UpdatedTime")
+        let secondsSinceUpdate = NSDate().timeIntervalSince1970 - updateTime!
+        
+        if (secondsSinceUpdate > 3600) //if last update was more than 1 hour ago, update weather
+        {
+            updateWeatherInfo(self.latitude as CLLocationDegrees, longitude: self.longitude as CLLocationDegrees, completion:
+                {
+                    (value: Bool) in
+            })
+            completionHandler(.NewData)
+        }
+
+        if (temp == nil)
+        {
+            if (self.latitude != nil && self.longitude != nil)
+            {
+                updateWeatherInfo(self.latitude as CLLocationDegrees, longitude: self.longitude as CLLocationDegrees, completion:
+                    {
+                        (value: Bool) in
+                    }
+                )
+            }
+        }
+        else
+        {
+            let dateFormatter = NSDateFormatter()
+            let formattedTime = NSDate(timeIntervalSince1970: updateTime!)
+            dateFormatter.dateFormat = "MMM d — h:mm a"
+            
+            updatedLabel.text = dateFormatter.stringFromDate(formattedTime)
+            locationLabel.text = location
+            tempLabel.attributedText = plainStringToAttributedUnits(temp!)
+            humidityLabel.text = humidity
+            windLabel.text = windSpeed
+        }
+        
+        completionHandler(.NewData)
+
+    }
+
+    
+    func locationManager(manager: CLLocationManager!, didUpdateLocations locations: [AnyObject]!)
+    {
+        var currentLocation:CLLocationCoordinate2D = manager.location.coordinate
+        
+        self.latitude = currentLocation.latitude
+        self.longitude = currentLocation.longitude
+        
+        defaults?.setValue(currentLocation.latitude, forKey: "latitude")
+        defaults?.setValue(currentLocation.longitude, forKey: "longitude")
+        defaults?.synchronize()
     }
 
     @IBAction func refresh(sender: AnyObject)
     {
+        var angle = -20*M_PI
         var rotate : CABasicAnimation = CABasicAnimation(keyPath: "transform.rotation.z")
         rotate.removedOnCompletion = false
         rotate.fillMode = kCAFillModeForwards
-        
-        var angle = -20*M_PI
-        
         rotate.toValue = angle
         rotate.duration = 10
         rotate.repeatCount = 11
         rotate.cumulative = true
         rotate.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear)
         
-        self.refresh.layer.addAnimation(rotate, forKey: "rotateAnimation")
+        refresh.layer.addAnimation(rotate, forKey: "rotateAnimation")
 
         updateWeatherInfo(self.latitude as CLLocationDegrees, longitude: self.longitude as CLLocationDegrees, completion:
             {
                 (value: Bool) in
-                println("IT WORKED")
                 self.refresh.layer.removeAllAnimations()
         })
     }
     
+    func isFirstLaunch() -> Bool
+    {
+        if (!flag)
+        {
+            if ((defaults?.boolForKey("hasLaunchedOnce")) != nil)
+            {
+                result = false
+            }
+            else
+            {
+                defaults?.setBool(true, forKey: "hasLaunchedOnce")
+                defaults?.synchronize()
+            }
+            
+            flag = true
+        }
+        
+        return result
+    }
     
     @IBAction func launchApp(sender: AnyObject)
     {
         var appURL: NSURL = NSURL(string: "mainapp://" )!
-        self.extensionContext?.openURL(appURL, completionHandler: nil)
+        extensionContext?.openURL(appURL, completionHandler: nil)
     }
     
     func updateWeatherInfo(latitude: CLLocationDegrees, longitude: CLLocationDegrees, completion: ((Bool) -> Void)?)
     {
-        Alamofire.request(.GET, "http://api.openweathermap.org/data/2.5/weather", parameters: ["lat":latitude, "lon":longitude, "cnt":0, "APPID":kWeatherAPIKey])
-            .responseJSON { (_, _, JSON, _) in
-                self.updateUISuccess(JSON as NSDictionary)
-                completion!(true)
-                println(JSON as NSDictionary)
+        var coordinates = "\(latitude),\(longitude)"
+        Alamofire.request(.GET, "http://api.wunderground.com/api/" + kWundergroundAPIKey + "/forecast/geolookup/conditions/q/" + coordinates + ".json")
+                    .responseJSON { (_, _, JSON, _) in
+                        self.updateUISuccess(JSON as NSDictionary)
+                        if (completion != nil)
+                        {
+                            completion!(true)
+                        }
         }
+    }
+    
+    func plainStringToAttributedUnits(stringToConvert: NSString) -> NSAttributedString
+    {
+        var attString = NSMutableAttributedString(string: stringToConvert)
+        var smallFont = UIFont.systemFontOfSize(33.0)
+        
+        attString.beginEditing()
+        attString.addAttribute(NSFontAttributeName, value: (smallFont), range: NSMakeRange(stringToConvert.length - 1, 1))
+        attString.addAttribute(kCTSuperscriptAttributeName, value: (1), range: NSMakeRange(stringToConvert.length - 1, 1))
+        attString.addAttribute(kCTForegroundColorAttributeName, value: UIColor.blackColor(), range: NSMakeRange(0, stringToConvert.length - 1))
+        attString.endEditing()
+
+        return attString;
     }
     
     func updateUISuccess(jsonResult: NSDictionary!)
     {
-        let appDomain = NSBundle .mainBundle().bundleIdentifier
-        self.defaults?.removePersistentDomainForName(appDomain!)
+//        let appDomain = NSBundle .mainBundle().bundleIdentifier
+//        defaults?.removePersistentDomainForName(appDomain!)
         
         var formatter = NSNumberFormatter()
         formatter.maximumFractionDigits = 0;
         
-        if let tempResult = ((jsonResult["main"]? as NSDictionary)["temp"] as? Double)
+        if let current_observation = ((jsonResult["current_observation"]? as? NSDictionary))
         {
-            var temperature: Double
-            
-            if let sys = (jsonResult["sys"]? as? NSDictionary)
+            if let display_location = (current_observation["display_location"]? as? NSDictionary)
             {
-                if let country = (sys["country"] as? String)
+                if let name = display_location["full"]? as String?
                 {
-                    if (country == "US")
-                    {
-                        // Convert temperature to Fahrenheit if user is within the US
-                        temperature = round(((tempResult - 273.15) * 1.8) + 32)
-                        
-                        self.defaults?.setObject(formatter.stringFromNumber(temperature)! + "°", forKey:"Temp")
-                        self.defaults?.synchronize()
-                        
-                        self.tempLabel.text = formatter.stringFromNumber(temperature)! + "°"
-                    }
-                    else
-                    {
-                        // Otherwise, convert temperature to Celsius
-                        temperature = round(tempResult - 273.15)
-                        self.tempLabel.text = formatter.stringFromNumber(temperature)! + "°"
-                    }
+                    locationLabel.text = name
+                    
+                    defaults?.setObject(name, forKey:"Location")
+                    defaults?.synchronize()
                 }
+            }
+            
+            if let temp_f = current_observation["temp_f"]? as Double?
+            {
+                let tempString = formatter.stringFromNumber(temp_f)! + "°"
+                tempLabel.attributedText = self.plainStringToAttributedUnits(tempString)
                 
-                if let updateTime = jsonResult["dt"] as? Double
+                defaults?.setObject(tempString, forKey:"Temp")
+                defaults?.synchronize()
+            }
+            
+            if let wind = current_observation["wind_mph"]? as Double?
+            {
+                if let wind_dir = current_observation["wind_dir"]? as? String
                 {
-                    let dateFormatter = NSDateFormatter()
-                    let formattedTime = NSDate(timeIntervalSince1970: updateTime)
-                    dateFormatter.dateFormat = "MMM d — h:m a"
-                    self.updatedLabel.text = dateFormatter.stringFromDate(formattedTime)
-
-                    self.defaults?.setObject(updateTime, forKey:"UpdatedTime")
-                    self.defaults?.synchronize()
+                    windLabel.text = "Wind: \(wind) MPH " + wind_dir
+                    
+                    defaults?.setObject("Wind: \(wind) MPH " + wind_dir, forKey:"WindSpeed")
+                    defaults?.synchronize()
                 }
+            }
+            
+            if let humidity = current_observation["relative_humidity"]? as? String
+            {
+                humidityLabel.text = "Humidity: " + humidity
                 
-                if let name = jsonResult["name"] as? String
-                {
-                    self.locationLabel.text = name + ", TX";
-                    
-                    self.defaults?.setObject(name + ", TX", forKey:"Location")
-                    self.defaults?.synchronize()
-                }
-
-                if let main = jsonResult["main"]? as? NSDictionary
-                {
-                    var humidity = main["humidity"] as Double
-                    var pressure = main["pressure"] as Double
-                    
-                    self.humidityLabel.text = "Humidity: " + formatter.stringFromNumber(humidity)! + "%"
-                    
-                    self.defaults?.setObject("Humidity: " + formatter.stringFromNumber(humidity)! + "%", forKey:"Humidity")
-                    self.defaults?.synchronize()
-                }
+                defaults?.setObject("Humidity: " + humidity, forKey:"Humidity")
+                defaults?.synchronize()
+            }
+            
+            if let updateTime = current_observation["observation_epoch"]? as? String
+            {
+                let dateFormatter = NSDateFormatter()
+                let formattedTime = NSDate(timeIntervalSince1970: (updateTime as NSString).doubleValue)
+                dateFormatter.dateFormat = "MMM d — h:mm a"
+                updatedLabel.text = dateFormatter.stringFromDate(formattedTime)
                 
-                if let wind = jsonResult["wind"]? as? NSDictionary
-                {
-                    var windSpeed = wind["speed"] as Double
-                    self.windLabel.text = "Wind: " + formatter.stringFromNumber(windSpeed)! + " MPH"
-                    
-                    self.defaults?.setObject("Wind: " + formatter.stringFromNumber(windSpeed)! + " MPH", forKey:"WindSpeed")
-                    self.defaults?.synchronize()
-                }
-
-                if let weather = jsonResult["weather"]? as? NSArray
-                {
-                    var condition = (weather[0] as NSDictionary)["id"] as Int
-                    var weatherDescription = (weather[0] as NSDictionary)["description"] as String
-                    var sunrise = sys["sunrise"] as Double
-                    var sunset = sys["sunset"] as Double
-                }
+                defaults?.setObject(updateTime, forKey:"UpdatedTime")
+                defaults?.synchronize()
             }
         }
     }

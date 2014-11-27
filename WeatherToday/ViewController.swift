@@ -10,71 +10,130 @@ import Foundation
 import UIKit
 import QuartzCore
 import Alamofire
+import CoreLocation
+import CoreText
 
-class ViewController: UIViewController, UITextFieldDelegate
+var kWundergroundAPIKey = "da8c1b0d02f335f8"
+
+class ViewController: UIViewController, CLLocationManagerDelegate
 {
     let defaults =  NSUserDefaults(suiteName: "group.brandonroeder.WeatherToday")
-    @IBOutlet weak var zipcodeField: UITextField!
+    let locationManager = CLLocationManager()
+    let latitude = CLLocationDegrees()
+    let longitude = CLLocationDegrees()
+    
+    @IBOutlet weak var locationLabel: UILabel!
 
     override func viewDidLoad()
     {
         super.viewDidLoad()
         
-        self.zipcodeField.delegate = self
-        self.zipcodeField.borderStyle = UITextBorderStyle.None
-        self.zipcodeField.clearsOnBeginEditing = true
+        self.locationManager.requestAlwaysAuthorization() // Ask for authorization from the User.
+        self.locationManager.requestWhenInUseAuthorization()
 
         self.view.backgroundColor = UIColor(patternImage: UIImage(named: "background_alt.png")!)
-
         var location: String? = self.defaults?.stringForKey("Location")
 
         if (location != nil)
         {
-            self.zipcodeField.text = location
+            self.locationLabel.text = location
         }
-        else
+        
+        if (CLLocationManager.locationServicesEnabled())
         {
-            self.zipcodeField.setNeedsDisplay()
-            self.zipcodeField.becomeFirstResponder()
+            locationManager.delegate = self
+            locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+            locationManager.startUpdatingLocation()
+        }
+        
+        self.updateWeatherInfo(self.latitude, longitude: self.longitude, completion: nil)
+    }
+    
+    func locationManager(manager: CLLocationManager!, didUpdateLocations locations: [AnyObject]!)
+    {
+        var currentLocation:CLLocationCoordinate2D = manager.location.coordinate
+        println("locations = \(currentLocation.latitude) \(currentLocation.longitude)")
+        self.defaults?.setValue(currentLocation.latitude, forKey: "latitude")
+        self.defaults?.setValue(currentLocation.longitude, forKey: "longitude")
+        self.defaults?.synchronize()
+    }
+    
+    func updateWeatherInfo(latitude: CLLocationDegrees, longitude: CLLocationDegrees, completion: ((Bool) -> Void)?)
+    {
+        var coordinates = "\(latitude),\(longitude)"
+        Alamofire.request(.GET, "http://api.wunderground.com/api/" + kWundergroundAPIKey + "/forecast/geolookup/conditions/q/" + coordinates + ".json")
+            .responseJSON { (_, _, JSON, _) in
+                self.storeJson(JSON as NSDictionary)
         }
     }
     
-    @IBAction func fetch(sender: AnyObject)
+    func plainStringToAttributedUnits(stringToConvert: NSString) -> NSAttributedString
+    {
+        //function to superscript the temp degree symbol
+        
+        var attString = NSMutableAttributedString(string: stringToConvert)
+        var smallFont = UIFont.systemFontOfSize(33.0)
+        
+        attString.beginEditing()
+        attString.addAttribute(NSFontAttributeName, value: (smallFont), range: NSMakeRange(stringToConvert.length - 1, 1))
+        attString.addAttribute(kCTSuperscriptAttributeName, value: (1), range: NSMakeRange(stringToConvert.length - 1, 1))
+        attString.addAttribute(kCTForegroundColorAttributeName, value: UIColor.blackColor(), range: NSMakeRange(0, stringToConvert.length - 1))
+        attString.endEditing()
+        
+        return attString;
+    }
+    
+    func storeJson(jsonResult: NSDictionary!)
     {
         let appDomain = NSBundle .mainBundle().bundleIdentifier
         self.defaults?.removePersistentDomainForName(appDomain!)
-
-        self.zipcodeField.resignFirstResponder()
-        self.getLocation(self.zipcodeField.text)
-
-    }
-    func getLocation(zipcode: String)
-    {
-        var fetchURL = "http://maps.google.com/maps/api/geocode/json?address=" + zipcode + "&sensor=false"
         
-        Alamofire.request(.GET, fetchURL)
-            .responseJSON
-            {
-                (_, _, JSON, _) in
-                self.updateUISuccess(JSON as NSDictionary)                
-            }
-    }
-    
-    func updateUISuccess(jsonResult: NSDictionary!)
-    {
-        var results: NSArray = jsonResult["results"] as NSArray
-        var components = results[0] as NSDictionary
-        let formattedAddress = components["formatted_address"]? as String?
+        var formatter = NSNumberFormatter()
+        formatter.maximumFractionDigits = 0;
         
-        if let coordinates = components["geometry"]? as NSDictionary?
+        if let current_observation = ((jsonResult["current_observation"]? as? NSDictionary))
         {
-            if let location = coordinates["location"]? as NSDictionary?
+            if let display_location = (current_observation["display_location"]? as? NSDictionary)
             {
-                let latitude: AnyObject? = location["lat"]? as AnyObject?
-                let longitude: AnyObject? = location["lng"]? as AnyObject?
+                if let name = display_location["full"]? as String?
+                {
+                    self.locationLabel.text = name
+                    
+                    self.defaults?.setObject(name, forKey:"Location")
+                    self.defaults?.synchronize()
+                }
+            }
+            
+            if let temp_f = current_observation["temp_f"]? as Double?
+            {
+                let tempString = formatter.stringFromNumber(temp_f)! + "°"
                 
-                self.defaults?.setValue(latitude, forKey: "latitude")
-                self.defaults?.setValue(longitude, forKey: "longitude")
+                self.defaults?.setObject(tempString, forKey:"Temp")
+                self.defaults?.synchronize()
+            }
+            
+            if let wind = current_observation["wind_mph"]? as Double?
+            {
+                if let wind_dir = current_observation["wind_dir"]? as? String
+                {
+                    self.defaults?.setObject("Wind: \(wind) MPH " + wind_dir, forKey:"WindSpeed")
+                    self.defaults?.synchronize()
+                }
+            }
+            
+            if let humidity = current_observation["relative_humidity"]? as? String
+            {
+                self.defaults?.setObject("Humidity: " + humidity, forKey:"Humidity")
+                self.defaults?.synchronize()
+            }
+            
+            if let updateTime = current_observation["observation_epoch"]? as? String
+            {
+                let dateFormatter = NSDateFormatter()
+                let formattedTime = NSDate(timeIntervalSince1970: (updateTime as NSString).doubleValue)
+                dateFormatter.dateFormat = "MMM d — h:mm a"
+                
+                self.defaults?.setObject(updateTime, forKey:"UpdatedTime")
                 self.defaults?.synchronize()
             }
         }
@@ -85,32 +144,4 @@ class ViewController: UIViewController, UITextFieldDelegate
         let maxLength = countElements(textField.text!) + countElements(string!) - range.length
         return maxLength <= 5 //Bool
     }
-    
-    func textFieldShouldReturn(textField: UITextField!) -> Bool
-    {
-        if (textField == self.zipcodeField)
-        {
-            textField.resignFirstResponder()
-            self.getLocation(self.zipcodeField.text)
-            return false;
-        }
-        return true
-    }
-    
-    func textFieldShouldClear(textField: UITextField!) -> Bool
-    {
-        var location: String? = self.defaults?.stringForKey("Location")
-        
-        if (textField == self.zipcodeField)
-        {
-            if (location != nil)
-            {
-                return true
-            }
-        }
-        
-        return false
-    }
-
-
 }

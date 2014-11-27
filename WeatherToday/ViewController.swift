@@ -13,7 +13,7 @@ import Alamofire
 import CoreLocation
 import CoreText
 
-var kWundergroundAPIKey = "da8c1b0d02f335f8"
+var kWundergroundAPIKey = *Inset Wunderground API Key here*
 
 class ViewController: UIViewController, CLLocationManagerDelegate
 {

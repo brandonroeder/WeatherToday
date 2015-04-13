@@ -7,7 +7,7 @@
 	<key>IDESourceControlProjectIdentifier</key>
 	<string>A04B18D0-8F3C-409D-9BD7-63E489423962</string>
 	<key>IDESourceControlProjectName</key>
-	<string>WeatherToday</string>
+	<string>project</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>47BECF3FEEFD1244D4E78AACC1933BCD0446CAA8</key>
@@ -16,13 +16,13 @@
 		<string>https://github.com/Alamofire/Alamofire.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>WeatherToday.xcodeproj</string>
+	<string>WeatherToday.xcodeproj/project.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>47BECF3FEEFD1244D4E78AACC1933BCD0446CAA8</key>
 		<string>../..</string>
 		<key>67620B5EFA902936DF04070AF595B76AB0333747</key>
-		<string>../..Alamofire</string>
+		<string>../..Alamofire/</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
 	<string>https://github.com/brandonroeder/WeatherToday.git</string>
@@ -36,17 +36,17 @@
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>47BECF3FEEFD1244D4E78AACC1933BCD0446CAA8</string>
+			<string>67620B5EFA902936DF04070AF595B76AB0333747</string>
 			<key>IDESourceControlWCCName</key>
-			<string>WeatherToday</string>
+			<string>Alamofire</string>
 		</dict>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>67620B5EFA902936DF04070AF595B76AB0333747</string>
+			<string>47BECF3FEEFD1244D4E78AACC1933BCD0446CAA8</string>
 			<key>IDESourceControlWCCName</key>
-			<string>WeatherTodayAlamofire</string>
+			<string>WeatherToday</string>
 		</dict>
 	</array>
 </dict>

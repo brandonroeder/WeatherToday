@@ -4,6 +4,11 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
+		<key>WeatherToday Watch App.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>3</integer>
+		</dict>
 		<key>WeatherToday.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
@@ -17,6 +22,16 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
+		<key>CA060EBB1A1C041000C7E93A</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>CA060ECC1A1C041000C7E93A</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>CA5DC1DE19D3DC96003F0AEB</key>
 		<dict>
 			<key>primary</key>

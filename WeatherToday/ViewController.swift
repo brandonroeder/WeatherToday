@@ -13,7 +13,7 @@ import Alamofire
 import CoreLocation
 import CoreText
 
-var kWundergroundAPIKey = *Inset Wunderground API Key here*
+let kWundergroundAPIKey = "da8c1b0d02f335f8"
 
 class ViewController: UIViewController, CLLocationManagerDelegate
 {
@@ -52,7 +52,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate
     func locationManager(manager: CLLocationManager!, didUpdateLocations locations: [AnyObject]!)
     {
         var currentLocation:CLLocationCoordinate2D = manager.location.coordinate
-        println("locations = \(currentLocation.latitude) \(currentLocation.longitude)")
         self.defaults?.setValue(currentLocation.latitude, forKey: "latitude")
         self.defaults?.setValue(currentLocation.longitude, forKey: "longitude")
         self.defaults?.synchronize()
@@ -63,7 +62,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate
         var coordinates = "\(latitude),\(longitude)"
         Alamofire.request(.GET, "http://api.wunderground.com/api/" + kWundergroundAPIKey + "/forecast/geolookup/conditions/q/" + coordinates + ".json")
             .responseJSON { (_, _, JSON, _) in
-                self.storeJson(JSON as NSDictionary)
+                self.storeJson(JSON as! NSDictionary)
         }
     }
     
@@ -71,13 +70,13 @@ class ViewController: UIViewController, CLLocationManagerDelegate
     {
         //function to superscript the temp degree symbol
         
-        var attString = NSMutableAttributedString(string: stringToConvert)
+        var attString = NSMutableAttributedString(string: stringToConvert as String)
         var smallFont = UIFont.systemFontOfSize(33.0)
         
         attString.beginEditing()
         attString.addAttribute(NSFontAttributeName, value: (smallFont), range: NSMakeRange(stringToConvert.length - 1, 1))
-        attString.addAttribute(kCTSuperscriptAttributeName, value: (1), range: NSMakeRange(stringToConvert.length - 1, 1))
-        attString.addAttribute(kCTForegroundColorAttributeName, value: UIColor.blackColor(), range: NSMakeRange(0, stringToConvert.length - 1))
+        attString.addAttribute("kCTSuperscriptAttributeName", value: (1), range: NSMakeRange(stringToConvert.length - 1, 1))
+        attString.addAttribute("kCTForegroundColorAttributeName", value: UIColor.blackColor(), range: NSMakeRange(0, stringToConvert.length - 1))
         attString.endEditing()
         
         return attString;
@@ -90,58 +89,35 @@ class ViewController: UIViewController, CLLocationManagerDelegate
         
         var formatter = NSNumberFormatter()
         formatter.maximumFractionDigits = 0;
-        
-        if let current_observation = ((jsonResult["current_observation"]? as? NSDictionary))
+    
+        if let
+            current_observation = jsonResult["current_observation"] as! NSDictionary?,
+            display_location = current_observation["display_location"] as! NSDictionary?,
+            name = display_location["full"] as! String?,
+            temp_f = current_observation["temp_f"] as! Double?,
+            wind = current_observation["wind_mph"] as! Double?,
+            wind_dir = current_observation["wind_dir"] as! String?,
+            humidity = current_observation["relative_humidity"] as! String?,
+            updateTime = current_observation["observation_epoch"] as! String?
         {
-            if let display_location = (current_observation["display_location"]? as? NSDictionary)
-            {
-                if let name = display_location["full"]? as String?
-                {
-                    self.locationLabel.text = name
-                    
-                    self.defaults?.setObject(name, forKey:"Location")
-                    self.defaults?.synchronize()
-                }
-            }
+            locationLabel.text = name
+            let tempString = formatter.stringFromNumber(temp_f)! + "°"
             
-            if let temp_f = current_observation["temp_f"]? as Double?
-            {
-                let tempString = formatter.stringFromNumber(temp_f)! + "°"
-                
-                self.defaults?.setObject(tempString, forKey:"Temp")
-                self.defaults?.synchronize()
-            }
+            defaults?.setObject(name, forKey:"Location")
+            defaults?.setObject(tempString, forKey:"Temp")
+            defaults?.setObject("Wind: \(wind) MPH " + wind_dir, forKey:"WindSpeed")
+            defaults?.setObject("Humidity: " + humidity, forKey:"Humidity")
             
-            if let wind = current_observation["wind_mph"]? as Double?
-            {
-                if let wind_dir = current_observation["wind_dir"]? as? String
-                {
-                    self.defaults?.setObject("Wind: \(wind) MPH " + wind_dir, forKey:"WindSpeed")
-                    self.defaults?.synchronize()
-                }
-            }
-            
-            if let humidity = current_observation["relative_humidity"]? as? String
-            {
-                self.defaults?.setObject("Humidity: " + humidity, forKey:"Humidity")
-                self.defaults?.synchronize()
-            }
-            
-            if let updateTime = current_observation["observation_epoch"]? as? String
-            {
-                let dateFormatter = NSDateFormatter()
-                let formattedTime = NSDate(timeIntervalSince1970: (updateTime as NSString).doubleValue)
-                dateFormatter.dateFormat = "MMM d — h:mm a"
-                
-                self.defaults?.setObject(updateTime, forKey:"UpdatedTime")
-                self.defaults?.synchronize()
-            }
+            let dateFormatter = NSDateFormatter()
+            let formattedTime = NSDate(timeIntervalSince1970: (updateTime as NSString).doubleValue)
+            dateFormatter.dateFormat = "MMM d — h:mm a"
+            defaults?.setObject(updateTime, forKey:"UpdatedTime")
         }
     }
     
     func textField(textField: UITextField!, shouldChangeCharactersInRange range: NSRange, replacementString string: String!) -> Bool
     {
-        let maxLength = countElements(textField.text!) + countElements(string!) - range.length
+        let maxLength = count(textField.text!) + count(string!) - range.length
         return maxLength <= 5 //Bool
     }
 }

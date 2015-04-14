@@ -19,8 +19,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate
 {
     let defaults =  NSUserDefaults(suiteName: "group.brandonroeder.WeatherToday")
     let locationManager = CLLocationManager()
-    let latitude = CLLocationDegrees()
-    let longitude = CLLocationDegrees()
+    var latitude = CLLocationDegrees()
+    var longitude = CLLocationDegrees()
     
     @IBOutlet weak var locationLabel: UILabel!
 
@@ -28,58 +28,43 @@ class ViewController: UIViewController, CLLocationManagerDelegate
     {
         super.viewDidLoad()
         
-        self.locationManager.requestAlwaysAuthorization() // Ask for authorization from the User.
-        self.locationManager.requestWhenInUseAuthorization()
+        locationManager.requestAlwaysAuthorization() // Ask for authorization from the User.
+        locationManager.requestWhenInUseAuthorization()
 
-        self.view.backgroundColor = UIColor(patternImage: UIImage(named: "background_alt.png")!)
-        var location: String? = self.defaults?.stringForKey("Location")
-
-        if (location != nil)
-        {
-            self.locationLabel.text = location
-        }
+        let location = self.defaults?.stringForKey("location")
+        locationLabel.text = location
         
         if (CLLocationManager.locationServicesEnabled())
         {
             locationManager.delegate = self
-            locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
-            locationManager.startUpdatingLocation()
+            locationManager.desiredAccuracy = kCLLocationAccuracyThreeKilometers
+            locationManager.distanceFilter = 1000.0
+            locationManager.startUpdatingLocation()            
         }
         
-        self.updateWeatherInfo(self.latitude, longitude: self.longitude, completion: nil)
+        view.backgroundColor = UIColor(patternImage: UIImage(named: "background_alt.png")!)
     }
     
     func locationManager(manager: CLLocationManager!, didUpdateLocations locations: [AnyObject]!)
     {
-        var currentLocation:CLLocationCoordinate2D = manager.location.coordinate
+        let currentLocation = manager.location.coordinate
+        
+        self.latitude = currentLocation.latitude
+        self.longitude = currentLocation.longitude
+        
+        self.updateWeatherInfo(currentLocation.latitude, longitude: currentLocation.longitude, completion: nil)
+
         self.defaults?.setValue(currentLocation.latitude, forKey: "latitude")
         self.defaults?.setValue(currentLocation.longitude, forKey: "longitude")
-        self.defaults?.synchronize()
     }
     
     func updateWeatherInfo(latitude: CLLocationDegrees, longitude: CLLocationDegrees, completion: ((Bool) -> Void)?)
     {
-        var coordinates = "\(latitude),\(longitude)"
+        let coordinates = "\(latitude),\(longitude)"
         Alamofire.request(.GET, "http://api.wunderground.com/api/" + kWundergroundAPIKey + "/forecast/geolookup/conditions/q/" + coordinates + ".json")
             .responseJSON { (_, _, JSON, _) in
                 self.storeJson(JSON as! NSDictionary)
         }
-    }
-    
-    func plainStringToAttributedUnits(stringToConvert: NSString) -> NSAttributedString
-    {
-        //function to superscript the temp degree symbol
-        
-        var attString = NSMutableAttributedString(string: stringToConvert as String)
-        var smallFont = UIFont.systemFontOfSize(33.0)
-        
-        attString.beginEditing()
-        attString.addAttribute(NSFontAttributeName, value: (smallFont), range: NSMakeRange(stringToConvert.length - 1, 1))
-        attString.addAttribute("kCTSuperscriptAttributeName", value: (1), range: NSMakeRange(stringToConvert.length - 1, 1))
-        attString.addAttribute("kCTForegroundColorAttributeName", value: UIColor.blackColor(), range: NSMakeRange(0, stringToConvert.length - 1))
-        attString.endEditing()
-        
-        return attString;
     }
     
     func storeJson(jsonResult: NSDictionary!)
@@ -87,31 +72,43 @@ class ViewController: UIViewController, CLLocationManagerDelegate
         let appDomain = NSBundle .mainBundle().bundleIdentifier
         self.defaults?.removePersistentDomainForName(appDomain!)
         
-        var formatter = NSNumberFormatter()
+        let formatter = NSNumberFormatter()
         formatter.maximumFractionDigits = 0;
     
         if let
+            forecast = jsonResult["forecast"] as! NSDictionary?,
+            simpleForecast = forecast["simpleforecast"] as! NSDictionary?,
+            dayForecast = simpleForecast["forecastday"] as! NSArray?,
+            currentForecast = dayForecast.firstObject as! NSDictionary?,
+            high = currentForecast["high"] as! NSDictionary?,
+            low = currentForecast["low"] as! NSDictionary?,
+            highTemp = high["fahrenheit"] as! String?,
+            lowTemp = low["fahrenheit"] as! String?,
             current_observation = jsonResult["current_observation"] as! NSDictionary?,
             display_location = current_observation["display_location"] as! NSDictionary?,
             name = display_location["full"] as! String?,
             temp_f = current_observation["temp_f"] as! Double?,
+            conditions = current_observation["weather"] as! String?,
             wind = current_observation["wind_mph"] as! Double?,
             wind_dir = current_observation["wind_dir"] as! String?,
             humidity = current_observation["relative_humidity"] as! String?,
             updateTime = current_observation["observation_epoch"] as! String?
         {
             locationLabel.text = name
-            let tempString = formatter.stringFromNumber(temp_f)! + "°"
+            let tempString = formatter.stringFromNumber(temp_f)
             
-            defaults?.setObject(name, forKey:"Location")
-            defaults?.setObject(tempString, forKey:"Temp")
-            defaults?.setObject("Wind: \(wind) MPH " + wind_dir, forKey:"WindSpeed")
-            defaults?.setObject("Humidity: " + humidity, forKey:"Humidity")
+            defaults?.setObject(name, forKey:"location")
+            defaults?.setObject(highTemp, forKey:"high")
+            defaults?.setObject(lowTemp, forKey:"low")
+            defaults?.setObject(conditions, forKey:"conditions")
+            defaults?.setObject(tempString, forKey:"temp")
+            defaults?.setObject("\(wind) MPH " + wind_dir, forKey:"wind")
+            defaults?.setObject(humidity, forKey:"humidity")
             
             let dateFormatter = NSDateFormatter()
             let formattedTime = NSDate(timeIntervalSince1970: (updateTime as NSString).doubleValue)
-            dateFormatter.dateFormat = "MMM d — h:mm a"
-            defaults?.setObject(updateTime, forKey:"UpdatedTime")
+            dateFormatter.dateFormat = "h:mm a"
+            defaults?.setObject(updateTime, forKey:"updated")
         }
     }
     

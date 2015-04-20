@@ -65,14 +65,12 @@ class WidgetViewController: UIViewController, NCWidgetProviding, CLLocationManag
             humidity = defaults?.stringForKey("humidity") as String?,
             windSpeed = defaults?.stringForKey("wind") as String?,
             conditions = defaults?.stringForKey("conditions") as String?,
-            updateTime = defaults?.doubleForKey("updatedTime") as Double?,
-            secondsSinceUpdate = NSDate().timeIntervalSince1970 - updateTime as Double?,
-            formattedTime = NSDate(timeIntervalSince1970: updateTime) as NSDate?
+            updateTime = defaults?.objectForKey("lastUpdatedTime") as! NSDate?
         {
             let dateFormatter = NSDateFormatter()
             dateFormatter.dateFormat = "h:mm a"
             
-            updatedLabel.text = dateFormatter.stringFromDate(formattedTime)
+            updatedLabel.text = dateFormatter.stringFromDate(updateTime)
             locationLabel.text = location
             descriptionLabel.text = conditions
             tempLabel.text = temp + "°"
@@ -86,11 +84,12 @@ class WidgetViewController: UIViewController, NCWidgetProviding, CLLocationManag
     func widgetPerformUpdateWithCompletionHandler(completionHandler: ((NCUpdateResult) -> Void)!)
     {
         let temp = defaults?.stringForKey("temp")
-
-        let updateTime = defaults?.doubleForKey("updatedTime")
-        let secondsSinceUpdate = NSDate().timeIntervalSince1970 - updateTime!
+        let date = NSDate()
+        let updateTime = defaults?.objectForKey("lastUpdatedTime") as! NSDate        
+        let interval = date.timeIntervalSinceDate(updateTime)
+        NSLog("Seconds since last update: %d", NSInteger(interval))
         
-        if (secondsSinceUpdate > 3600) //if last update was more than 1 hour ago, update weather
+        if (NSInteger(interval) > 3600) //if last update was more than 1 hour ago, update weather
         {
             updateWeatherInfo(self.latitude as! CLLocationDegrees, longitude: self.longitude as! CLLocationDegrees, completion:
                 {
@@ -123,7 +122,7 @@ class WidgetViewController: UIViewController, NCWidgetProviding, CLLocationManag
 
     @IBAction func refresh(sender: AnyObject)
     {
-        var angle = -20*M_PI
+        var angle = -20 * M_PI
         var rotate : CABasicAnimation = CABasicAnimation(keyPath: "transform.rotation.z")
         rotate.removedOnCompletion = false
         rotate.fillMode = kCAFillModeForwards
@@ -231,7 +230,8 @@ class WidgetViewController: UIViewController, NCWidgetProviding, CLLocationManag
             dateFormatter.dateFormat = "h:mm a"
             updatedLabel.text = dateFormatter.stringFromDate(formattedTime)
             
-            defaults?.setObject(updateTime, forKey:"updatedTime")
+            let date = NSDate()
+            defaults?.setObject(date, forKey:"lastUpdatedTime")
         }
     }
     

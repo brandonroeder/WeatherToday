@@ -108,7 +108,9 @@ class ViewController: UIViewController, CLLocationManagerDelegate
             let dateFormatter = NSDateFormatter()
             let formattedTime = NSDate(timeIntervalSince1970: (updateTime as NSString).doubleValue)
             dateFormatter.dateFormat = "h:mm a"
-            defaults?.setObject(updateTime, forKey:"updated")
+            
+            let date = NSDate()
+            defaults?.setObject(date, forKey:"lastUpdatedTime")
         }
     }
     
